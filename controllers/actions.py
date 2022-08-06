@@ -29,11 +29,8 @@ class ShowInstrumentsAction(AbstractAction):
 
 class AddInstrumentAction(AbstractAction):
     def start(self):
-        instrument_type = input('What is the instrument type?\n')
-        try:
-            type_enum = InstrumentType(instrument_type)
-        except ValueError:
-            print('Unknown instrument type!')
+        type_enum = self.get_instrument_type_input()
+        if not type_enum:
             return False
 
         try:
