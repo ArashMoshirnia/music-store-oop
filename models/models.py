@@ -15,7 +15,8 @@ class AbstractInstrumentSpec(ABC):
             return False
 
         for prop in self.properties:
-            if getattr(self, prop) != getattr(instrument_spec, prop):
+            input_property = getattr(instrument_spec, prop)
+            if input_property and getattr(self, prop) != input_property:
                 return False
 
         return True
@@ -109,6 +110,14 @@ class Instrument:
         print(f'Type: {self._instrument_type.name} - Price: {self._price}')
         self._instrument_spec.print()
         print('-------------------------------')
+
+    @property
+    def instrument_spec(self):
+        return self._instrument_spec
+
+    @classmethod
+    def get_instruments_by_type(cls, instrument_type: InstrumentType):
+        return cls._instruments[instrument_type]
 
     @classmethod
     def print_all_instruments(cls):
