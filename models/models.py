@@ -10,6 +10,16 @@ class AbstractInstrumentSpec(ABC):
                             inspect.getmembers(self.__class__, lambda member: isinstance(member, property))
                             if name != 'properties']
 
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+
+        for prop in self.properties:
+            other_property = getattr(other, prop)
+            if getattr(self, prop) != other_property:
+                return False
+        return True
+
     def matches(self, instrument_spec):
         if not isinstance(instrument_spec, self.__class__):
             return False
@@ -90,7 +100,7 @@ class GuitarSpec(AbstractInstrumentSpec):
 
 
 class Instrument:
-    _instruments = {instrument_type: set() for instrument_type in InstrumentType}
+    _instruments = {instrument_type: [] for instrument_type in InstrumentType}
 
     def __init__(self, instrument_type: InstrumentType, price: int, spec: AbstractInstrumentSpec):
         self._instrument_type = instrument_type
@@ -100,11 +110,22 @@ class Instrument:
     def __str__(self):
         return f'{id(self)} - {self._instrument_type} - {self._price}'
 
+    def __eq__(self, other):
+        if not isinstance(other, Instrument):
+            return False
+
+        variables = vars(self).copy()
+        for var in variables:
+            if getattr(self, var) != getattr(other, var):
+                return False
+        return True
+
     def create(self):
         if not self._instrument_spec.is_complete():
             raise Exception('Instrument spec is not completely filled')
 
-        Instrument._instruments[self._instrument_type].add(self)
+        if self not in Instrument._instruments[self._instrument_type]:
+            Instrument._instruments[self._instrument_type].append(self)
 
     def print(self):
         print(f'Type: {self._instrument_type.name} - Price: {self._price}')
